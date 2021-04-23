@@ -357,7 +357,13 @@ window.data = {
   ],
 };
 
-document.getElementById('app-root').innerHTML = App();
+function renderApp() {
+  document.getElementById('app-root').innerHTML = `${App()}`;
+}
+
+window.renderApp = renderApp;
+
+renderApp();
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -365,7 +371,7 @@ function getRandomInt(max) {
 
 function Rockets() {
   return `<div>
-        <h1>Rockets</h1>
+        <h2>Rockets</h2>
         ${window.data.rockets.map(
           rocket => `<div>
             <div>
@@ -373,7 +379,7 @@ function Rockets() {
                 <p>${rocket.description}</p>
             </div>
             <div>
-                <h2><a href="${rocket.wikipedia}">${rocket.name}</a></h2>
+                <h3><a href="${rocket.wikipedia}">${rocket.name}</a></h3>
                 <table>
                     <tbody>
                         <tr>
@@ -398,7 +404,7 @@ function Rockets() {
 
 function Missions() {
   return `<div>
-    <h1>Missions</h1>
+        <h2>Missions</h2>
         ${window.data.missions.map(
           mission => `<div>
             <a href="${mission.wikipedia}">${mission.mission_name}</a>
@@ -413,13 +419,17 @@ function Event() {
   const event = window.data.events[randomId];
 
   return `<div>
-        <p>${event.title}</p>
-        <p>${event.details}</p>
+        <h2>Random event</h2>
+        <div>
+            <p>${event.title}</p>
+            <p>${event.details}</p>
+        </div>
     </div>`;
 }
 
 function App() {
   return `<div>
+        <h1>SpaceX info app</h1>
         ${Rockets()}
         <hr>
         ${Missions()}
