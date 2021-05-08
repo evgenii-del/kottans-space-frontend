@@ -8,7 +8,9 @@ if (module.not) {
 
 window.dataStore = {
   rockets: [],
+  selectedRocket: 'Falcon 1',
   missions: [],
+  selectedMission: 'Thaicom',
   histories: [],
   isDataLoading: false,
   error: null,
@@ -45,6 +47,7 @@ function validateAndGetData() {
   Promise.all([getRockets(), getMissions(), getHistories()])
     .then(values => {
       window.dataStore = {
+        ...window.dataStore,
         rockets: values[0],
         missions: values[1],
         histories: values[2],
@@ -60,36 +63,63 @@ function validateAndGetData() {
 
 validateAndGetData();
 
-function Rockets() {
+function RocketCard({
+  rocket_name,
+  description,
+  flickr_images,
+  wikipedia,
+  height,
+  diameter,
+  mass,
+}) {
   return `<div>
-        <h2>Rockets</h2>
-        ${window.dataStore.rockets.map(
-          rocket => `<div>
             <div>
-                <img src="${rocket.flickr_images[0]}" alt="${rocket.rocket_name}">
-                <p>${rocket.description}</p>
+                <img src="${flickr_images[0]}" alt="${rocket_name}">
+                <p>${description}</p>
             </div>
             <div>
-                <h3><a href="${rocket.wikipedia}">${rocket.rocket_name}</a></h3>
+                <h3><a href="${wikipedia}">${rocket_name}</a></h3>
                 <table>
                     <tbody>
                         <tr>
                             <td>HEIGHT:</td>
-                            <td>${rocket.height.meters} m</td>
+                            <td>${height.meters} m</td>
                         </tr>
                         <tr>
                             <td>DIAMETER:</td>
-                            <td>${rocket.diameter.meters} m</td>
+                            <td>${diameter.meters} m</td>
                         </tr>
                         <tr>
                             <td>MASS:</td>
-                            <td>${rocket.mass.kg} kg</td>
+                            <td>${mass.kg} kg</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>`,
+        </div>`;
+}
+
+function selectRocket(rocket) {
+  window.dataStore.selectedRocket = rocket;
+  renderApp();
+}
+
+function Rockets() {
+  return `<div>
+        <h2>Rockets</h2>
+        <div>
+        ${window.dataStore.rockets.map(
+          ({ rocket_name }) =>
+            `<label>${rocket_name}<input type="radio" value="${rocket_name}" name="missions" onchange="(${selectRocket})(this.value)" ${
+              rocket_name === window.dataStore.selectedRocket ? 'checked' : ''
+            }/></label>`,
         )}
+        </div>
+       ${RocketCard(
+         window.dataStore.rockets.find(
+           ({ rocket_name }) => rocket_name === window.dataStore.selectedRocket,
+         ),
+       )}
     </div>`;
 }
 
@@ -100,10 +130,27 @@ function MissionCard({ wikipedia, mission_name, description }) {
         </div>`;
 }
 
+function selectMission(mission) {
+  window.dataStore.selectedMission = mission;
+  renderApp();
+}
+
 function Missions() {
   return `<div>
         <h2>Missions</h2>
-        ${window.dataStore.missions.map(mission => MissionCard(mission))}
+        <div>
+        ${window.dataStore.missions.map(
+          ({ mission_name }) =>
+            `<label>${mission_name}<input type="radio" value="${mission_name}" name="rockets" ${
+              mission_name === window.dataStore.selectedMission ? 'checked' : ''
+            } onchange="(${selectMission})(this.value)"/></label>`,
+        )}
+        </div>
+        ${MissionCard(
+          window.dataStore.missions.find(
+            ({ mission_name }) => mission_name === window.dataStore.selectedMission,
+          ),
+        )}
     </div>`;
 }
 
@@ -121,7 +168,10 @@ function Event() {
 }
 
 function App() {
-  return `<div>
+  if (window.dataStore.isDataLoading) {
+    return `<div>Loading...</div>`;
+  } else {
+    return `<div>
         <h1>SpaceX info app</h1>
         ${Rockets()}
         <hr>
@@ -129,4 +179,5 @@ function App() {
         <hr>
         ${Event()}
     </div>`;
+  }
 }
