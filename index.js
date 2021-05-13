@@ -18,6 +18,15 @@ window.dataStore = {
 
 function renderApp() {
   document.getElementById('app-root').innerHTML = `${App()}`;
+
+  const rocketRadios = document.querySelectorAll('.rocket-radio');
+  const missionRadios = document.querySelectorAll('.mission-radio');
+  rocketRadios.forEach(radio =>
+    radio.addEventListener('change', ({ target }) => selectRocket(target.value)),
+  );
+  missionRadios.forEach(radio =>
+    radio.addEventListener('change', ({ target }) => selectMission(target.value)),
+  );
 }
 
 window.renderApp = renderApp;
@@ -105,19 +114,20 @@ const selectRocket = rocket => {
 };
 
 function Rockets() {
-  const { rockets } = window.dataStore;
   return `<div>
         <h2>Rockets</h2>
         <div>
-        ${rockets.map(
-          ({ rocket_name }) =>
-            `<label>${rocket_name}<input type="radio" value="${rocket_name}" name="missions" onchange="(${selectRocket})(this.value);" ${
+        ${window.dataStore.rockets.map(
+          ({ rocket_name, id }) =>
+            `<label>${rocket_name}<input class="rocket-radio" type="radio" value="${rocket_name}" name="missions" ${
               rocket_name === window.dataStore.selectedRocket ? 'checked' : ''
             }/></label>`,
         )}
         </div>
        ${RocketCard(
-         rockets.find(({ rocket_name }) => rocket_name === window.dataStore.selectedRocket),
+         window.dataStore.rockets.find(
+           ({ rocket_name }) => rocket_name === window.dataStore.selectedRocket,
+         ),
        )}
     </div>`;
 }
@@ -141,9 +151,9 @@ function Missions() {
         <div>
         ${missions.map(
           ({ mission_name }) =>
-            `<label>${mission_name}<input type="radio" value="${mission_name}" name="rockets" ${
+            `<label>${mission_name}<input class="mission-radio" type="radio" value="${mission_name}" name="rockets" ${
               mission_name === window.dataStore.selectedMission ? 'checked' : ''
-            } onchange="(${selectMission})(this.value);"/></label>`,
+            }/></label>`,
         )}
         </div>
         ${MissionCard(
