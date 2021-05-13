@@ -99,18 +99,18 @@ function RocketCard({
         </div>`;
 }
 
-function selectRocket(rocket) {
+const selectRocket = rocket => {
   window.dataStore.selectedRocket = rocket;
   renderApp();
-}
+};
 
-function Rockets() {
+function Rockets(handler) {
   return `<div>
         <h2>Rockets</h2>
         <div>
         ${window.dataStore.rockets.map(
           ({ rocket_name }) =>
-            `<label>${rocket_name}<input type="radio" value="${rocket_name}" name="missions" onchange="(${selectRocket})(this.value)" ${
+            `<label>${rocket_name}<input type="radio" value="${rocket_name}" name="missions" onchange="(${handler})(this.value)" ${
               rocket_name === window.dataStore.selectedRocket ? 'checked' : ''
             }/></label>`,
         )}
@@ -130,12 +130,12 @@ function MissionCard({ wikipedia, mission_name, description }) {
         </div>`;
 }
 
-function selectMission(mission) {
+const selectMission = mission => {
   window.dataStore.selectedMission = mission;
   renderApp();
-}
+};
 
-function Missions() {
+function Missions(handler) {
   return `<div>
         <h2>Missions</h2>
         <div>
@@ -143,7 +143,7 @@ function Missions() {
           ({ mission_name }) =>
             `<label>${mission_name}<input type="radio" value="${mission_name}" name="rockets" ${
               mission_name === window.dataStore.selectedMission ? 'checked' : ''
-            } onchange="(${selectMission})(this.value)"/></label>`,
+            } onchange="(${handler})(this.value)"/></label>`,
         )}
         </div>
         ${MissionCard(
@@ -173,9 +173,9 @@ function App() {
   } else {
     return `<div>
         <h1>SpaceX info app</h1>
-        ${Rockets()}
+        ${Rockets(selectRocket)}
         <hr>
-        ${Missions()}
+        ${Missions(selectMission)}
         <hr>
         ${Event()}
     </div>`;
