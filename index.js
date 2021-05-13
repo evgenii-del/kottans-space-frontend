@@ -17,7 +17,7 @@ window.dataStore = {
 };
 
 function renderApp() {
-  document.getElementById('app-root').innerHTML = `${App(window.dataStore)}`;
+  document.getElementById('app-root').innerHTML = `${App()}`;
 }
 
 window.renderApp = renderApp;
@@ -104,19 +104,20 @@ const selectRocket = rocket => {
   renderApp();
 };
 
-function Rockets(data, handler) {
+function Rockets() {
+  const { rockets } = window.dataStore;
   return `<div>
         <h2>Rockets</h2>
         <div>
-        ${data.map(
+        ${rockets.map(
           ({ rocket_name }) =>
-            `<label>${rocket_name}<input type="radio" value="${rocket_name}" name="missions" onchange="(${handler})(this.value)" ${
+            `<label>${rocket_name}<input type="radio" value="${rocket_name}" name="missions" onchange="(${selectRocket})(this.value);" ${
               rocket_name === window.dataStore.selectedRocket ? 'checked' : ''
             }/></label>`,
         )}
         </div>
        ${RocketCard(
-         data.find(({ rocket_name }) => rocket_name === window.dataStore.selectedRocket),
+         rockets.find(({ rocket_name }) => rocket_name === window.dataStore.selectedRocket),
        )}
     </div>`;
 }
@@ -133,19 +134,20 @@ const selectMission = mission => {
   renderApp();
 };
 
-function Missions(data, handler) {
+function Missions() {
+  const { missions } = window.dataStore;
   return `<div>
         <h2>Missions</h2>
         <div>
-        ${data.map(
+        ${missions.map(
           ({ mission_name }) =>
             `<label>${mission_name}<input type="radio" value="${mission_name}" name="rockets" ${
               mission_name === window.dataStore.selectedMission ? 'checked' : ''
-            } onchange="(${handler})(this.value)"/></label>`,
+            } onchange="(${selectMission})(this.value);"/></label>`,
         )}
         </div>
         ${MissionCard(
-          data.find(({ mission_name }) => mission_name === window.dataStore.selectedMission),
+          missions.find(({ mission_name }) => mission_name === window.dataStore.selectedMission),
         )}
     </div>`;
 }
@@ -163,15 +165,15 @@ function Event() {
   </div>`;
 }
 
-function App({ isDataLoading, rockets, missions }) {
-  if (isDataLoading) {
+function App() {
+  if (window.dataStore.isDataLoading) {
     return `<div>Loading...</div>`;
   } else {
     return `<div>
         <h1>SpaceX info app</h1>
-        ${Rockets(rockets, selectRocket)}
+        ${Rockets()}
         <hr>
-        ${Missions(missions, selectMission)}
+        ${Missions()}
         <hr>
         ${Event()}
     </div>`;
