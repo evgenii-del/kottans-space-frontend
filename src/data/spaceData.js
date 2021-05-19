@@ -1,23 +1,5 @@
 import renderApp from '../framework/render';
-import { App } from '../components/App';
-
-function getRockets() {
-  return fetch('https://api.spacexdata.com/v3/rockets')
-    .then(res => res.json())
-    .then(res => res);
-}
-
-function getMissions() {
-  return fetch('https://api.spacexdata.com/v3/missions')
-    .then(res => res.json())
-    .then(res => res);
-}
-
-function getHistories() {
-  return fetch('https://api.spacexdata.com/v3/history')
-    .then(res => res.json())
-    .then(res => res);
-}
+import { getHistories, getMissions, getRockets } from './spaceXAPI';
 
 export function validateAndGetData() {
   window.dataStore.isDataLoading = true;
@@ -32,7 +14,7 @@ export function validateAndGetData() {
         histories: values[2],
       };
       window.dataStore.isDataLoading = false;
-      renderApp(App, 'app-root');
+      renderApp();
     })
     .catch(error => {
       window.dataStore.isDataLoading = false;
