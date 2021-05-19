@@ -1,28 +1,18 @@
+/** @jsx createElement */
+/** @jsxFrag createFragment */
+import { createElement } from './element';
 let Component, Target;
 
-const selectRocket = rocket => {
-  window.dataStore.selectedRocket = rocket;
-  renderApp();
-};
-
-const selectMission = mission => {
-  window.dataStore.selectedMission = mission;
-  renderApp();
-};
-
-export default function renderApp(componentFunction, targetElementId) {
+export default function renderApp(componentFunction = null, targetElement = null) {
   if (componentFunction) Component = componentFunction;
-  if (targetElementId) Target = targetElementId;
+  if (targetElement) Target = targetElement;
 
-  document.getElementById(Target).innerHTML = `${Component()}`;
+  Target.innerHTML = '';
+  Target.appendChild(<Component />);
 
   const rocketRadios = document.querySelectorAll('.rocket-radio');
-  const missionRadios = document.querySelectorAll('.mission-radio');
 
   rocketRadios.forEach(radio =>
     radio.addEventListener('change', ({ target }) => selectRocket(target.value)),
-  );
-  missionRadios.forEach(radio =>
-    radio.addEventListener('change', ({ target }) => selectMission(target.value)),
   );
 }

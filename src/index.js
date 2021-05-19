@@ -11,5 +11,5 @@ window.dataStore = dataStore;
 window.renderApp = renderApp;
 window.validateAndGetData = validateAndGetData;
 
-renderApp(App, 'app-root');
+renderApp(App, document.getElementById('app-root'));
 validateAndGetData();
