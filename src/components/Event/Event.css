@@ -1,0 +1,16 @@
+/* Event block */
+
+.event {
+  /*max-width: 320px;*/
+  width: 100%;
+  padding: 15px;
+  margin-top: 25px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+}
+
+.event__title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}

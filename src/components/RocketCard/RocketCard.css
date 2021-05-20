@@ -1,0 +1,30 @@
+/* Rocket card */
+
+.rocket__card {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card__image,
+.card__content {
+  width: 50%;
+}
+
+.card__content {
+  padding: 15px;
+}
+
+.card__description,
+.card__title {
+  margin-bottom: 15px;
+}
+
+.card__table {
+  width: 100%;
+  border: 1px solid #000000;
+}
+
+.card__td {
+  text-align: center;
+  padding: 5px;
+}

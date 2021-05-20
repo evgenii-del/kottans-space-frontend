@@ -8,8 +8,6 @@ if (module.not) {
 }
 
 window.dataStore = dataStore;
-window.renderApp = renderApp;
-window.validateAndGetData = validateAndGetData;
 
 renderApp(App, document.getElementById('app-root'));
 validateAndGetData();

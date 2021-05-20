@@ -1,0 +1,26 @@
+/* Rockets */
+
+.rockets__menu {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.rockets__label {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  background-color: #283747;
+  color: #ffffff;
+}
+
+.rockets__label:hover,
+.rockets__label_active {
+  background-color: #de354c;
+}
+
+.rockets__input {
+  display: none;
+}
