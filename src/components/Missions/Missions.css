@@ -1,0 +1,24 @@
+.missions__menu {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.missions__label {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  background-color: #283747;
+  color: #ffffff;
+}
+
+.missions__label:hover,
+.missions__label_active {
+  background-color: #de354c;
+}
+
+.missions__input {
+  display: none;
+}
