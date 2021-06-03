@@ -2,8 +2,8 @@
 /** @jsxFrag createFragment */
 import { createElement } from '../../framework';
 import { getRandomInt } from '../../utils';
-import styles from './Event.css';
 import { useEffect, useState } from '../../framework';
+import styles from './Event.css';
 
 export function Event() {
   const [event, setEvent] = useState();
