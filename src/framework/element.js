@@ -5,13 +5,15 @@
  * @param {Node[]} children - child elements
  * @returns {DocumentFragment|Element}
  */
+import { createFunctionElement } from './hooks';
+
 export const createElement = (tag, props, ...children) => {
   if (typeof tag === 'function') {
     /*
       Passing children as the 2nd argument is required as jsx transformer puts component functions
       and regular tags in wrapper functions that expect children as the 2nd param
      */
-    return tag({ ...props, children }, children);
+    return createFunctionElement(tag, props, children);
   }
   const element = tag === '' ? new DocumentFragment() : document.createElement(tag);
   Object.entries(props || {}).forEach(([name, value]) => {
@@ -28,16 +30,8 @@ export const createElement = (tag, props, ...children) => {
           // https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute#example
           if (['disabled', 'checked'].includes(name) && !value) {
             element.removeAttribute(name);
-          } else if (name.toLowerCase() === 'classname') {
-            // We want to treat both strings and arrays in a similar manner
-            const classList = typeof value === 'string' ? value.split(' ').filter(Boolean) : value;
-            element.classList.add(...classList);
           } else {
-            element.setAttribute(
-              name,
-              /** @type {string} */
-              value,
-            );
+            element.setAttribute(name, value);
           }
         }
       } catch (e) {
