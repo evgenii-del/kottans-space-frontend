@@ -1,12 +1,21 @@
 /** @jsx createElement */
 /** @jsxFrag createFragment */
-import { createElement } from '../../framework/element';
+import { createElement } from '../../framework';
 import { getRandomInt } from '../../utils';
+import { useEffect, useState } from '../../framework';
 import styles from './Event.css';
 
 export function Event() {
-  const randomId = getRandomInt(window.dataStore.histories.length);
-  const event = window.dataStore.histories[randomId];
+  const [event, setEvent] = useState();
+
+  useEffect(() => {
+    fetch('https://api.spacexdata.com/v4/history')
+      .then(res => res.json())
+      .then(res => {
+        const randomId = getRandomInt(res.length);
+        setEvent(res[randomId]);
+      });
+  }, []);
 
   if (event) {
     return (

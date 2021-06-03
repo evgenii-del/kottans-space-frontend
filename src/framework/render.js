@@ -1,18 +1,27 @@
 /** @jsx createElement */
-/** @jsxFrag createFragment */
+/*** @jsxFrag createFragment */
 import { createElement } from './element';
-let Component, Target;
+import { current } from './hooks';
 
-export default function renderApp(componentFunction = null, targetElement = null) {
-  if (componentFunction) Component = componentFunction;
-  if (targetElement) Target = targetElement;
+/**
+ * Renders a component and attaches it to the target DOM element
+ * @param Component - function
+ * @param target - DOM element to attach component to
+ */
 
-  Target.innerHTML = '';
-  Target.appendChild(<Component />);
+let timer;
 
-  const rocketRadios = document.querySelectorAll('.rocket-radio');
+export function render(Component, target) {
+  function workLoop() {
+    if (current.shouldReRender) {
+      current.shouldReRender = false;
+      target.replaceChildren(<Component />);
+    }
 
-  rocketRadios.forEach(radio =>
-    radio.addEventListener('change', ({ target }) => selectRocket(target.value)),
-  );
+    cancelAnimationFrame(timer);
+    timer = requestAnimationFrame(workLoop);
+  }
+  timer = requestAnimationFrame(workLoop);
 }
+
+export default render;
