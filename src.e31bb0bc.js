@@ -117,23 +117,91 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"data/dataStore.js":[function(require,module,exports) {
+})({"framework/hooks.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.dataStore = void 0;
-const dataStore = {
-  rockets: [],
-  selectedRocket: 'Falcon 1',
-  missions: [],
-  selectedMission: 'Landing Zone 1',
-  histories: [],
-  isDataLoading: false,
-  error: null
+exports.createFunctionElement = createFunctionElement;
+exports.useState = useState;
+exports.useEffect = useEffect;
+exports.useContext = exports.current = void 0;
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+const current = {
+  shouldReRender: true,
+  wipComponent: null,
+  hookIndex: null
 };
-exports.dataStore = dataStore;
+exports.current = current;
+
+function createFunctionElement(tag, props, children) {
+  current.wipComponent = tag;
+  current.hookIndex = 0;
+  current.wipComponent.hooks = current.wipComponent.hooks || [];
+  return tag(_objectSpread(_objectSpread({}, props), {}, {
+    children
+  }), children);
+}
+
+function useState(initial) {
+  const {
+    wipComponent,
+    hookIndex
+  } = current;
+  const oldHook = wipComponent.hooks[hookIndex];
+  const hook = {
+    state: oldHook ? oldHook.state : initial,
+    queue: []
+  };
+  const actions = oldHook ? oldHook.queue : [];
+  actions.forEach(action => {
+    hook.state = typeof action === 'function' ? action(hook.state) : action;
+  });
+
+  const setState = action => {
+    current.shouldReRender = true;
+    hook.queue.push(action);
+  };
+
+  wipComponent.hooks[hookIndex] = hook;
+  current.hookIndex++;
+  return [hook.state, setState];
+}
+
+function useEffect(effect, deps) {
+  const {
+    wipComponent,
+    hookIndex
+  } = current;
+  const oldHook = wipComponent.hooks[hookIndex];
+  const oldDeps = oldHook ? oldHook.deps : undefined;
+  const hasChanged = hasDepsChanged(oldDeps, deps);
+  current.hookIndex++;
+  if (!hasChanged) return;
+
+  if (oldHook && oldHook.unmount) {
+    window.removeEventListener('beforeunload', oldHook.unmount);
+  }
+
+  wipComponent.hooks[hookIndex] = {
+    unmount: effect(),
+    deps
+  };
+  window.addEventListener('beforeunload', wipComponent.hooks[hookIndex].unmount);
+}
+
+const hasDepsChanged = (prevDeps, nextDeps) => !prevDeps || !nextDeps || prevDeps.length !== nextDeps.length || prevDeps.some((dep, index) => dep !== nextDeps[index]);
+
+const useContext = Context => Context.value;
+
+exports.useContext = useContext;
 },{}],"framework/element.js":[function(require,module,exports) {
 "use strict";
 
@@ -142,11 +210,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.createFragment = exports.createElement = void 0;
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+var _hooks = require("./hooks");
 
 /**
  * Creates DOM Node. Implements jsx-parser's createElement API
@@ -161,9 +225,7 @@ const createElement = (tag, props, ...children) => {
       Passing children as the 2nd argument is required as jsx transformer puts component functions
       and regular tags in wrapper functions that expect children as the 2nd param
      */
-    return tag(_objectSpread(_objectSpread({}, props), {}, {
-      children
-    }), children);
+    return (0, _hooks.createFunctionElement)(tag, props, children);
   }
 
   const element = tag === '' ? new DocumentFragment() : document.createElement(tag);
@@ -179,14 +241,8 @@ const createElement = (tag, props, ...children) => {
           // https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute#example
           if (['disabled', 'checked'].includes(name) && !value) {
             element.removeAttribute(name);
-          } else if (name.toLowerCase() === 'classname') {
-            // We want to treat both strings and arrays in a similar manner
-            const classList = typeof value === 'string' ? value.split(' ').filter(Boolean) : value;
-            element.classList.add(...classList);
           } else {
-            element.setAttribute(name,
-            /** @type {string} */
-            value);
+            element.setAttribute(name, value);
           }
         }
       } catch (e) {
@@ -227,32 +283,99 @@ const appendChild = (parent, child) => {
 const createFragment = (props, ...children) => createElement('', props, ...children);
 
 exports.createFragment = createFragment;
-},{}],"framework/render.js":[function(require,module,exports) {
+},{"./hooks":"framework/hooks.js"}],"framework/render.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = renderApp;
+exports.render = render;
+exports.default = void 0;
 
 var _element = require("./element");
 
+var _hooks = require("./hooks");
+
 /** @jsx createElement */
 
-/** @jsxFrag createFragment */
-let Component, Target;
+/*** @jsxFrag createFragment */
 
-function renderApp(componentFunction = null, targetElement = null) {
-  if (componentFunction) Component = componentFunction;
-  if (targetElement) Target = targetElement;
-  Target.innerHTML = '';
-  Target.appendChild((0, _element.createElement)(Component, null));
-  const rocketRadios = document.querySelectorAll('.rocket-radio');
-  rocketRadios.forEach(radio => radio.addEventListener('change', ({
-    target
-  }) => selectRocket(target.value)));
+/**
+ * Renders a component and attaches it to the target DOM element
+ * @param Component - function
+ * @param target - DOM element to attach component to
+ */
+let timer;
+
+function render(Component, target) {
+  function workLoop() {
+    if (_hooks.current.shouldReRender) {
+      _hooks.current.shouldReRender = false;
+      target.replaceChildren((0, _element.createElement)(Component, null));
+    }
+
+    cancelAnimationFrame(timer);
+    timer = requestAnimationFrame(workLoop);
+  }
+
+  timer = requestAnimationFrame(workLoop);
 }
-},{"./element":"framework/element.js"}],"data/spaceXAPI.js":[function(require,module,exports) {
+
+var _default = render;
+exports.default = _default;
+},{"./element":"framework/element.js","./hooks":"framework/hooks.js"}],"framework/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "createElement", {
+  enumerable: true,
+  get: function () {
+    return _element.createElement;
+  }
+});
+Object.defineProperty(exports, "createFragment", {
+  enumerable: true,
+  get: function () {
+    return _element.createFragment;
+  }
+});
+Object.defineProperty(exports, "render", {
+  enumerable: true,
+  get: function () {
+    return _render.render;
+  }
+});
+Object.defineProperty(exports, "useState", {
+  enumerable: true,
+  get: function () {
+    return _hooks.useState;
+  }
+});
+Object.defineProperty(exports, "useEffect", {
+  enumerable: true,
+  get: function () {
+    return _hooks.useEffect;
+  }
+});
+exports.default = void 0;
+
+var _element = require("./element");
+
+var _render = require("./render");
+
+var _hooks = require("./hooks");
+
+var _default = {
+  createElement: _element.createElement,
+  createFragment: _element.createFragment,
+  useState: _hooks.useState,
+  useEffect: _hooks.useEffect,
+  render: _render.render
+};
+exports.default = _default;
+},{"./element":"framework/element.js","./render":"framework/render.js","./hooks":"framework/hooks.js"}],"data/spaceXAPI.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -475,11 +598,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Rockets = Rockets;
 
-var _element = require("../../framework/element");
+var _framework = require("../../framework");
 
 var _RocketCard = require("../RocketCard/RocketCard");
-
-var _render = _interopRequireDefault(require("../../framework/render"));
 
 var _Rockets = _interopRequireDefault(require("./Rockets.css"));
 
@@ -488,23 +609,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /** @jsx createElement */
 
 /** @jsxFrag createFragment */
-const selectRocket = rocket => {
-  window.dataStore.selectedRocket = rocket;
-  (0, _render.default)();
-};
-
 function Rockets() {
-  const {
-    rockets,
-    selectedRocket
-  } = window.dataStore;
-  return (0, _element.createElement)("div", null, (0, _element.createElement)("h2", null, "Rockets"), (0, _element.createElement)("div", {
+  const [selectedRocket, setSelectedRocket] = (0, _framework.useState)('Falcon 1');
+  const [rockets, setRockets] = (0, _framework.useState)();
+
+  const selectRocket = rocket => {
+    setSelectedRocket(rocket);
+  };
+
+  (0, _framework.useEffect)(() => {
+    fetch('https://api.spacexdata.com/v4/rockets').then(res => res.json()).then(res => setRockets(res));
+  }, []);
+  return (0, _framework.createElement)("div", null, (0, _framework.createElement)("h2", null, "Rockets"), (0, _framework.createElement)("div", {
     className: _Rockets.default.rockets__menu
-  }, rockets.map(({
+  }, rockets && rockets.map(({
     name
-  }) => (0, _element.createElement)("label", {
+  }) => (0, _framework.createElement)("label", {
     className: name === selectedRocket ? [_Rockets.default.rockets__label, _Rockets.default.rockets__label_active] : _Rockets.default.rockets__label
-  }, (0, _element.createElement)("span", null, name), (0, _element.createElement)("input", {
+  }, (0, _framework.createElement)("span", null, name), (0, _framework.createElement)("input", {
     className: _Rockets.default.rockets__input,
     type: "radio",
     value: name,
@@ -513,11 +635,11 @@ function Rockets() {
       target
     }) => selectRocket(target.value),
     checked: name === selectedRocket
-  })))), rockets.length ? (0, _RocketCard.RocketCard)(rockets.find(({
+  })))), rockets && rockets.length ? (0, _RocketCard.RocketCard)(rockets.find(({
     name
-  }) => name === selectedRocket)) : (0, _element.createElement)("p", null, "No rockets"));
+  }) => name === selectedRocket)) : (0, _framework.createElement)("p", null, "No rockets"));
 }
-},{"../../framework/element":"framework/element.js","../RocketCard/RocketCard":"components/RocketCard/RocketCard.js","../../framework/render":"framework/render.js","./Rockets.css":"components/Rockets/Rockets.css"}],"components/MissionCard/MissionCard.css":[function(require,module,exports) {
+},{"../../framework":"framework/index.js","../RocketCard/RocketCard":"components/RocketCard/RocketCard.js","./Rockets.css":"components/Rockets/Rockets.css"}],"components/MissionCard/MissionCard.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -572,11 +694,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Missions = Missions;
 
-var _element = require("../../framework/element");
+var _framework = require("../../framework");
 
 var _MissionCard = require("../MissionCard/MissionCard");
-
-var _render = _interopRequireDefault(require("../../framework/render"));
 
 var _Missions = _interopRequireDefault(require("./Missions.css"));
 
@@ -585,24 +705,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /** @jsx createElement */
 
 /** @jsxFrag createFragment */
-const selectMission = mission => {
-  window.dataStore.selectedMission = mission;
-  (0, _render.default)();
-};
-
 function Missions() {
-  const {
-    missions,
-    selectedMission
-  } = window.dataStore;
-  return (0, _element.createElement)("div", null, (0, _element.createElement)("h2", null, "Missions"), (0, _element.createElement)("div", {
+  const [selectedMission, setSelectedMission] = (0, _framework.useState)('Landing Zone 1');
+  const [missions, setMissions] = (0, _framework.useState)();
+
+  const selectMission = mission => {
+    setSelectedMission(mission);
+  };
+
+  (0, _framework.useEffect)(() => {
+    fetch('https://api.spacexdata.com/v4/landpads').then(res => res.json()).then(res => setMissions(res));
+  }, []);
+  return (0, _framework.createElement)("div", null, (0, _framework.createElement)("h2", null, "Missions"), (0, _framework.createElement)("div", {
     className: _Missions.default.missions__menu
-  }, missions.map(({
+  }, missions && missions.map(({
     full_name,
     name
-  }) => (0, _element.createElement)("label", {
+  }) => (0, _framework.createElement)("label", {
     className: full_name === selectedMission ? [_Missions.default.missions__label, _Missions.default.missions__label_active] : _Missions.default.missions__label
-  }, (0, _element.createElement)("span", null, name), (0, _element.createElement)("input", {
+  }, (0, _framework.createElement)("span", null, name), (0, _framework.createElement)("input", {
     className: _Missions.default.missions__input,
     type: "radio",
     value: full_name,
@@ -611,11 +732,11 @@ function Missions() {
       target
     }) => selectMission(target.value),
     checked: full_name === selectedMission
-  })))), missions.length ? (0, _MissionCard.MissionCard)(missions.find(({
+  })))), missions && missions.length ? (0, _MissionCard.MissionCard)(missions.find(({
     full_name
   }) => full_name === selectedMission)) : `<p>No missions</p>`);
 }
-},{"../../framework/element":"framework/element.js","../MissionCard/MissionCard":"components/MissionCard/MissionCard.js","../../framework/render":"framework/render.js","./Missions.css":"components/Missions/Missions.css"}],"utils.js":[function(require,module,exports) {
+},{"../../framework":"framework/index.js","../MissionCard/MissionCard":"components/MissionCard/MissionCard.js","./Missions.css":"components/Missions/Missions.css"}],"utils.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -643,7 +764,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Event = Event;
 
-var _element = require("../../framework/element");
+var _framework = require("../../framework");
 
 var _utils = require("../../utils");
 
@@ -655,20 +776,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /** @jsxFrag createFragment */
 function Event() {
-  const randomId = (0, _utils.getRandomInt)(window.dataStore.histories.length);
-  const event = window.dataStore.histories[randomId];
+  const [event, setEvent] = (0, _framework.useState)();
+  (0, _framework.useEffect)(() => {
+    fetch('https://api.spacexdata.com/v4/history').then(res => res.json()).then(res => {
+      const randomId = (0, _utils.getRandomInt)(res.length);
+      setEvent(res[randomId]);
+    });
+  }, []);
 
   if (event) {
-    return (0, _element.createElement)("div", {
+    return (0, _framework.createElement)("div", {
       className: _Event.default.event
-    }, (0, _element.createElement)("h2", {
+    }, (0, _framework.createElement)("h2", {
       className: _Event.default.event__title
-    }, event.title), (0, _element.createElement)("p", null, event.details));
+    }, event.title), (0, _framework.createElement)("p", null, event.details));
   }
 
-  return (0, _element.createElement)("p", null, "No events");
+  return (0, _framework.createElement)("p", null, "No events");
 }
-},{"../../framework/element":"framework/element.js","../../utils":"utils.js","./Event.css":"components/Event/Event.css"}],"components/App.css":[function(require,module,exports) {
+},{"../../framework":"framework/index.js","../../utils":"utils.js","./Event.css":"components/Event/Event.css"}],"components/App.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -684,7 +810,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.App = App;
 
-var _element = require("../framework/element");
+var _framework = require("../framework");
 
 var _Rockets = require("./Rockets/Rockets");
 
@@ -700,34 +826,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 /** @jsxFrag createFragment */
 function App() {
-  if (window.dataStore.isDataLoading) {
-    return `<div>Loading...</div>`;
-  }
-
-  return (0, _element.createElement)("div", {
+  return (0, _framework.createElement)("div", {
     className: _App.default.wrapper
-  }, (0, _element.createElement)("h1", null, "SpaceX info app"), (0, _element.createElement)(_Rockets.Rockets, null), (0, _element.createElement)(_Missions.Missions, null), (0, _element.createElement)(_Event.Event, null));
+  }, (0, _framework.createElement)("h1", null, "SpaceX info app"), (0, _framework.createElement)(_Rockets.Rockets, null), (0, _framework.createElement)(_Missions.Missions, null), (0, _framework.createElement)(_Event.Event, null));
 }
-},{"../framework/element":"framework/element.js","./Rockets/Rockets":"components/Rockets/Rockets.js","./Missions/Missions":"components/Missions/Missions.js","./Event/Event":"components/Event/Event.js","./App.css":"components/App.css"}],"index.js":[function(require,module,exports) {
+},{"../framework":"framework/index.js","./Rockets/Rockets":"components/Rockets/Rockets.js","./Missions/Missions":"components/Missions/Missions.js","./Event/Event":"components/Event/Event.js","./App.css":"components/App.css"}],"index.js":[function(require,module,exports) {
 "use strict";
 
-var _dataStore = require("./data/dataStore");
-
-var _render = _interopRequireDefault(require("./framework/render"));
+var _framework = require("./framework");
 
 var _spaceData = require("./data/spaceData");
 
 var _App = require("./components/App");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 if (module.not) {
   module.not.accept();
 }
 
-window.dataStore = _dataStore.dataStore; // renderApp(App, document.getElementById('app-root'));
-// validateAndGetData();
-},{"./data/dataStore":"data/dataStore.js","./framework/render":"framework/render.js","./data/spaceData":"data/spaceData.js","./components/App":"components/App.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+(0, _framework.render)(_App.App, document.getElementById('app-root')); // validateAndGetData();
+},{"./framework":"framework/index.js","./data/spaceData":"data/spaceData.js","./components/App":"components/App.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -755,7 +872,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61518" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64858" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
