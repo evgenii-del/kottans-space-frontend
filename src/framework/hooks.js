@@ -1,3 +1,5 @@
+import { isFunction } from '../utils';
+
 export const current = {
   shouldReRender: true,
   wipComponent: null,
@@ -23,7 +25,7 @@ export function useState(initial) {
   const actions = oldHook ? oldHook.queue : [];
 
   actions.forEach(action => {
-    hook.state = typeof action === 'function' ? action(hook.state) : action;
+    hook.state = isFunction(action) ? action(hook.state) : action;
   });
 
   const setState = action => {
