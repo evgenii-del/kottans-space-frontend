@@ -7,8 +7,8 @@ import styles from './Event.css';
 export function Event() {
   const [event, setEvent] = useState();
 
-  useEffect(() => {
-    const res = getHistories();
+  useEffect(async () => {
+    const res = await getHistories();
     const randomId = getRandomInt(res.length);
     setEvent(res[randomId]);
   }, []);
