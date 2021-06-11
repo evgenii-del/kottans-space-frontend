@@ -1,8 +1,5 @@
-/** @jsx createElement */
-/** @jsxFrag createFragment */
-import { createElement } from '../../framework';
+import React, { useEffect, useState } from 'react';
 import { MissionCard } from '../MissionCard/MissionCard';
-import { useEffect, useState } from '../../framework';
 import styles from './Missions.css';
 
 export function Missions() {
@@ -26,9 +23,10 @@ export function Missions() {
         {missions &&
           missions.map(({ full_name, name }) => (
             <label
+              key={name}
               className={
                 full_name === selectedMission
-                  ? [styles.missions__label, styles.missions__label_active]
+                  ? `${styles.missions__label} ${styles.missions__label_active}`
                   : styles.missions__label
               }
             >

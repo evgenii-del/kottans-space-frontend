@@ -1,8 +1,5 @@
-/** @jsx createElement */
-/** @jsxFrag createFragment */
-import { createElement } from '../../framework';
+import React, { useEffect, useState } from 'react';
 import { RocketCard } from '../RocketCard/RocketCard';
-import { useEffect, useState } from '../../framework';
 import styles from './Rockets.css';
 
 export function Rockets() {
@@ -26,9 +23,10 @@ export function Rockets() {
         {rockets &&
           rockets.map(({ name }) => (
             <label
+              key={name}
               className={
                 name === selectedRocket
-                  ? [styles.rockets__label, styles.rockets__label_active]
+                  ? `${styles.rockets__label} ${styles.rockets__label_active}`
                   : styles.rockets__label
               }
             >

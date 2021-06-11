@@ -1,6 +1,4 @@
-/** @jsx createElement */
-/** @jsxFrag createFragment */
-import { createElement } from '../../framework';
+import React from 'react';
 import styles from './MissionCard.css';
 
 export function MissionCard({ wikipedia, full_name, details }) {

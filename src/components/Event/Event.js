@@ -1,8 +1,5 @@
-/** @jsx createElement */
-/** @jsxFrag createFragment */
-import { createElement } from '../../framework';
+import React, { useEffect, useState } from 'react';
 import { getRandomInt } from '../../utils';
-import { useEffect, useState } from '../../framework';
 import styles from './Event.css';
 
 export function Event() {
