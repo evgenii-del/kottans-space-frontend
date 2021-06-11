@@ -1,5 +1,3 @@
-/* Rocket card */
-
 ._rocket__card_bea2e {
   display: flex;
   justify-content: space-between;
@@ -29,8 +27,6 @@
   padding: 5px;
 }
 
-/* Rockets */
-
 ._rockets__menu_795d5 {
   display: flex;
   justify-content: space-between;
@@ -55,8 +51,6 @@
 ._rockets__input_795d5 {
   display: none;
 }
-
-/* Mission card */
 
 ._card__title_fc7ba {
   margin-bottom: 15px;
@@ -87,10 +81,7 @@
   display: none;
 }
 
-/* Event block */
-
 ._event_5ccc6 {
-  /*max-width: 320px;*/
   width: 100%;
   padding: 15px;
   margin-top: 25px;
@@ -104,13 +95,15 @@
   margin-bottom: 5px;
 }
 
-/* App */
-
 ._wrapper_9de3c {
   max-width: 1000px;
   width: 100%;
   padding: 20px 12px;
   margin: 0 auto;
+}
+
+._title_9de3c {
+  margin-bottom: 25px;
 }
 
 

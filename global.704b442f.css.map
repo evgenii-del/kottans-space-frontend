@@ -1,1 +1,0 @@
-{"version":3,"sources":["global.css"],"names":[],"mappings":"AAAA,iBAGE,QAAS,CACT,SAAU,CACV,qBACF,CAEA,EACE,oBAAqB,CACrB,UACF","file":"global.704b442f.css","sourceRoot":"..\\src","sourcesContent":["*,\r\n*::before,\r\n*::after {\r\n  margin: 0;\r\n  padding: 0;\r\n  box-sizing: border-box;\r\n}\r\n\r\na {\r\n  text-decoration: none;\r\n  color: #000000;\r\n}\r\n"]}
