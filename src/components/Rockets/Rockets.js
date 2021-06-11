@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import { RocketCard } from '../RocketCard/RocketCard';
 import styles from './Rockets.css';
 
@@ -43,7 +44,7 @@ export function Rockets() {
           ))}
       </div>
       {rockets && rockets.length ? (
-        RocketCard(rockets.find(({ name }) => name === selectedRocket))
+        <RocketCard rocket={rockets.find(({ name }) => name === selectedRocket)} />
       ) : (
         <p>No rockets</p>
       )}

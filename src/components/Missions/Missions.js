@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import { MissionCard } from '../MissionCard/MissionCard';
 import styles from './Missions.css';
 
@@ -42,9 +43,11 @@ export function Missions() {
             </label>
           ))}
       </div>
-      {missions && missions.length
-        ? MissionCard(missions.find(({ full_name }) => full_name === selectedMission))
-        : `<p>No missions</p>`}
+      {missions && missions.length ? (
+        <MissionCard mission={missions.find(({ full_name }) => full_name === selectedMission)} />
+      ) : (
+        <p>No missions</p>
+      )}
     </div>
   );
 }
