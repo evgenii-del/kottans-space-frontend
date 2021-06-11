@@ -1,29 +1,24 @@
-/** @jsx createElement */
-/** @jsxFrag createFragment */
-import { createElement } from '../../framework';
+import React, { useEffect, useState } from 'react';
+
+import { getHistories } from '../../data/spaceXAPI';
 import { getRandomInt } from '../../utils';
-import { useEffect, useState } from '../../framework';
 import styles from './Event.css';
 
 export function Event() {
   const [event, setEvent] = useState();
 
-  useEffect(() => {
-    fetch('https://api.spacexdata.com/v4/history')
-      .then(res => res.json())
-      .then(res => {
-        const randomId = getRandomInt(res.length);
-        setEvent(res[randomId]);
-      });
+  useEffect(async () => {
+    const res = await getHistories();
+    const randomId = getRandomInt(res.length);
+    setEvent(res[randomId]);
   }, []);
 
-  if (event) {
-    return (
-      <div className={styles.event}>
-        <h2 className={styles.event__title}>{event.title}</h2>
-        <p>{event.details}</p>
-      </div>
-    );
-  }
-  return <p>No events</p>;
+  return event ? (
+    <div className={styles.event}>
+      <h2 className={styles.event__title}>{event.title}</h2>
+      <p>{event.details}</p>
+    </div>
+  ) : (
+    <p>No events</p>
+  );
 }

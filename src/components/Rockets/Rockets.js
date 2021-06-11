@@ -1,8 +1,7 @@
-/** @jsx createElement */
-/** @jsxFrag createFragment */
-import { createElement } from '../../framework';
+import React, { useEffect, useState } from 'react';
+
+import { getRockets } from '../../data/spaceXAPI';
 import { RocketCard } from '../RocketCard/RocketCard';
-import { useEffect, useState } from '../../framework';
 import styles from './Rockets.css';
 
 export function Rockets() {
@@ -13,10 +12,9 @@ export function Rockets() {
     setSelectedRocket(rocket);
   };
 
-  useEffect(() => {
-    fetch('https://api.spacexdata.com/v4/rockets')
-      .then(res => res.json())
-      .then(res => setRockets(res));
+  useEffect(async () => {
+    const res = await getRockets();
+    setRockets(res);
   }, []);
 
   return (
@@ -26,9 +24,10 @@ export function Rockets() {
         {rockets &&
           rockets.map(({ name }) => (
             <label
+              key={name}
               className={
                 name === selectedRocket
-                  ? [styles.rockets__label, styles.rockets__label_active]
+                  ? `${styles.rockets__label} ${styles.rockets__label_active}`
                   : styles.rockets__label
               }
             >
