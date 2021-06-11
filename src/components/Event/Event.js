@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+import { getHistories } from '../../data/spaceXAPI';
 import { getRandomInt } from '../../utils';
 import styles from './Event.css';
 
@@ -7,12 +8,9 @@ export function Event() {
   const [event, setEvent] = useState();
 
   useEffect(() => {
-    fetch('https://api.spacexdata.com/v4/history')
-      .then(res => res.json())
-      .then(res => {
-        const randomId = getRandomInt(res.length);
-        setEvent(res[randomId]);
-      });
+    const res = getHistories();
+    const randomId = getRandomInt(res.length);
+    setEvent(res[randomId]);
   }, []);
 
   return event ? (

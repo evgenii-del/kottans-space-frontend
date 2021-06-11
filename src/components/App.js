@@ -8,7 +8,7 @@ import styles from './App.css';
 export function App() {
   return (
     <div className={styles.wrapper}>
-      <h1>SpaceX info app</h1>
+      <h1 className={styles.title}>SpaceX info app</h1>
       <Rockets />
       <Missions />
       <Event />

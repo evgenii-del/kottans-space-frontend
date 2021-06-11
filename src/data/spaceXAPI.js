@@ -5,15 +5,7 @@ export function getRockets() {
 }
 
 export function getMissions() {
-  // return fetch('https://api.spacexdata.com/v3/missions')
-  // return fetch('https://api.spacexdata.com/v3/missions')
-  //   .then(res => res.json())
-  //   .then(res => res);
-  return [];
-}
-
-export function getLandpads() {
-  return fetch('https://api.spacexdata.com/v4/landpads')
+  return fetch('https://api.spacexdata.com/v3/missions')
     .then(res => res.json())
     .then(res => res);
 }

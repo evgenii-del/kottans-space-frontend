@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+import { getRockets } from '../../data/spaceXAPI';
 import { RocketCard } from '../RocketCard/RocketCard';
 import styles from './Rockets.css';
 
@@ -11,10 +12,9 @@ export function Rockets() {
     setSelectedRocket(rocket);
   };
 
-  useEffect(() => {
-    fetch('https://api.spacexdata.com/v4/rockets')
-      .then(res => res.json())
-      .then(res => setRockets(res));
+  useEffect(async () => {
+    const res = await getRockets();
+    setRockets(res);
   }, []);
 
   return (
@@ -44,7 +44,7 @@ export function Rockets() {
           ))}
       </div>
       {rockets && rockets.length ? (
-        <RocketCard rocket={rockets.find(({ name }) => name === selectedRocket)} />
+        RocketCard(rockets.find(({ name }) => name === selectedRocket))
       ) : (
         <p>No rockets</p>
       )}

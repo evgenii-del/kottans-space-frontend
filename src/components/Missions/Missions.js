@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 
+import { getMissions } from '../../data/spaceXAPI';
 import { MissionCard } from '../MissionCard/MissionCard';
 import styles from './Missions.css';
 
 export function Missions() {
-  const [selectedMission, setSelectedMission] = useState('Landing Zone 1');
+  const [selectedMission, setSelectedMission] = useState('Thaicom');
   const [missions, setMissions] = useState();
 
   const selectMission = mission => {
     setSelectedMission(mission);
   };
 
-  useEffect(() => {
-    fetch('https://api.spacexdata.com/v4/landpads')
-      .then(res => res.json())
-      .then(res => setMissions(res));
+  useEffect(async () => {
+    const res = await getMissions();
+    setMissions(res);
   }, []);
 
   return (
@@ -22,32 +22,30 @@ export function Missions() {
       <h2>Missions</h2>
       <div className={styles.missions__menu}>
         {missions &&
-          missions.map(({ full_name, name }) => (
+          missions.map(({ mission_name, mission_id }) => (
             <label
-              key={name}
+              key={mission_id}
               className={
-                full_name === selectedMission
+                mission_name === selectedMission
                   ? `${styles.missions__label} ${styles.missions__label_active}`
                   : styles.missions__label
               }
             >
-              <span>{name}</span>
+              <span>{mission_name}</span>
               <input
                 className={styles.missions__input}
                 type="radio"
-                value={full_name}
+                value={mission_name}
                 name="rockets"
                 onChange={({ target }) => selectMission(target.value)}
-                checked={full_name === selectedMission}
+                checked={mission_name === selectedMission}
               />
             </label>
           ))}
       </div>
-      {missions && missions.length ? (
-        <MissionCard mission={missions.find(({ full_name }) => full_name === selectedMission)} />
-      ) : (
-        <p>No missions</p>
-      )}
+      {missions && missions.length
+        ? MissionCard(missions.find(({ mission_name }) => mission_name === selectedMission))
+        : `<p>No missions</p>`}
     </div>
   );
 }
