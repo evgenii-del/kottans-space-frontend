@@ -44,7 +44,7 @@ export function Rockets() {
           ))}
       </div>
       {rockets && rockets.length ? (
-        RocketCard(rockets.find(({ name }) => name === selectedRocket))
+        RocketCard(rockets.find(({ name }) => name === selectedRocket)) // todo
       ) : (
         <p>No rockets</p>
       )}

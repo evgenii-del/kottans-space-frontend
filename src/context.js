@@ -1,4 +1,4 @@
 import { createContext, useContext } from 'react';
 
 export const AppContext = createContext({});
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => useContext(AppContext); // todo not used

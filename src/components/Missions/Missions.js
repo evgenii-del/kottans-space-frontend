@@ -44,7 +44,7 @@ export function Missions() {
           ))}
       </div>
       {missions && missions.length
-        ? MissionCard(missions.find(({ mission_name }) => mission_name === selectedMission))
+        ? MissionCard(missions.find(({ mission_name }) => mission_name === selectedMission)) //todo
         : `<p>No missions</p>`}
     </div>
   );
