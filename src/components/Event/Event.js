@@ -13,23 +13,14 @@ export function Event() {
     setEvent(res[randomId]);
   }, []);
 
+  if (!event) {
+    return <p>No events</p>;
+  }
 
-  // if(!event) <p>No events</p>
-  //
-  // return (
-  //     <div className={styles.event}>
-  //       <h2 className={styles.event__title}>{event.title}</h2>
-  //       <p>{event.details}</p>
-  //     </div>
-
-
-
-  return event ? (
+  return (
     <div className={styles.event}>
       <h2 className={styles.event__title}>{event.title}</h2>
       <p>{event.details}</p>
     </div>
-  ) : (
-      <p>No events</p>
   );
 }

@@ -17,37 +17,36 @@ export function Rockets() {
     setRockets(res);
   }, []);
 
+  if (!rockets) {
+    return <p>No rockets</p>;
+  }
+
   return (
     <div>
       <h2>Rockets</h2>
       <div className={styles.rockets__menu}>
-        {rockets &&
-          rockets.map(({ name }) => (
-            <label
-              key={name}
-              className={
-                name === selectedRocket
-                  ? `${styles.rockets__label} ${styles.rockets__label_active}`
-                  : styles.rockets__label
-              }
-            >
-              <span>{name}</span>
-              <input
-                className={styles.rockets__input}
-                type="radio"
-                value={name}
-                name="missions"
-                onChange={({ target }) => selectRocket(target.value)}
-                checked={name === selectedRocket}
-              />
-            </label>
-          ))}
+        {rockets.map(({ name }) => (
+          <label
+            key={name}
+            className={
+              name === selectedRocket
+                ? `${styles.rockets__label} ${styles.rockets__label_active}`
+                : styles.rockets__label
+            }
+          >
+            <span>{name}</span>
+            <input
+              className={styles.rockets__input}
+              type="radio"
+              value={name}
+              name="missions"
+              onChange={({ target }) => selectRocket(target.value)}
+              checked={name === selectedRocket}
+            />
+          </label>
+        ))}
       </div>
-      {rockets && rockets.length ? (
-        RocketCard(rockets.find(({ name }) => name === selectedRocket)) // todo
-      ) : (
-        <p>No rockets</p>
-      )}
+      <RocketCard rockets={rockets} selectedRocket={selectedRocket}></RocketCard>
     </div>
   );
 }

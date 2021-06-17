@@ -2,15 +2,10 @@ import React from 'react';
 
 import styles from './RocketCard.css';
 
-export function RocketCard({
-  name,
-  description,
-  flickr_images,
-  wikipedia,
-  height,
-  diameter,
-  mass,
-}) {
+export function RocketCard({ rockets, selectedRocket }) {
+  const { name, description, flickr_images, wikipedia, height, diameter, mass } = rockets.find(
+    ({ name }) => name === selectedRocket,
+  );
   return (
     <div className={styles.rocket__card}>
       <img className={styles.card__image} src={flickr_images[0]} alt={name} />
